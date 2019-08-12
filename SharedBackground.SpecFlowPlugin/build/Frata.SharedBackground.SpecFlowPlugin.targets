@@ -1,0 +1,9 @@
+﻿<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <_SharedBackgroundPluginFramework Condition=" '$(MSBuildRuntimeType)' == 'Core'">netstandard2.0</_SharedBackgroundPluginFramework>
+    <_SharedBackgroundPluginFramework Condition=" '$(MSBuildRuntimeType)' != 'Core'">net471</_SharedBackgroundPluginFramework>
+
+    <_SharedBackgroundPluginPath>$(MSBuildThisFileDirectory)\$(_SharedBackgroundPluginFramework)\SharedBackground.SpecFlowPlugin.dll</_SharedBackgroundPluginPath>
+
+  </PropertyGroup>
+</Project>
