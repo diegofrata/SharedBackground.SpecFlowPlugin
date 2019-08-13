@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-<!--    <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>-->
-    <TargetFrameworks>netstandard2.0</TargetFrameworks>
+    <TargetFrameworks>net471;netstandard2.0</TargetFrameworks>
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <NuspecFile>$(MSBuildThisFileDirectory)SharedBackground.nuspec</NuspecFile>
     <RootNamespace>SharedBackground.SpecFlowPlugin</RootNamespace>
+    <Version>1.0.0</Version>
   </PropertyGroup>
 
   <ItemGroup>

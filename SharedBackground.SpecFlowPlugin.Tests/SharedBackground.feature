@@ -1,4 +1,4 @@
-Feature: Background
+Feature: Shared Background
 
   Background:
 

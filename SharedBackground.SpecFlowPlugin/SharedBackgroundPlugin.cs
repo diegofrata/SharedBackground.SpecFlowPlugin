@@ -18,7 +18,7 @@ namespace SharedBackground.SpecFlowPlugin
             generatorPluginEvents.RegisterDependencies += (sender, args) =>
             {
                 args.ObjectContainer.RegisterTypeAs<SharedBackgroundFeatureGeneratorProvider, IFeatureGeneratorProvider>();
-//                args.ObjectContainer.RegisterTypeAs<SharedBackgroundFeatureGenerator, IFeatureGenerator>("default");
+                args.ObjectContainer.RegisterTypeAs<SharedBackgroundFeatureGenerator, IFeatureGenerator>();
             };
         }
     }
