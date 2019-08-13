@@ -1,7 +1,7 @@
 ﻿<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>SharedBackground.SpecFlowPlugin</id>
-    <version>1.0.1</version>
+    <version>1.1.0-beta</version>
     <title>SharedBackground.SpecFlowPlugin</title>
     <authors>Diego Frata</authors>
     <owners>Diego Frata</owners>
@@ -12,7 +12,7 @@
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <tags>specflow</tags>
     <dependencies>
-      <dependency id="SpecFlow" version="3.0"/>
+      <dependency id="SpecFlow" version="3.1"/>
     </dependencies>
     
   </metadata>

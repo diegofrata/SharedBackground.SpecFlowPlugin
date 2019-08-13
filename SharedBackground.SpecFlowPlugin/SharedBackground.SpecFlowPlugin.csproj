@@ -5,11 +5,11 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <NuspecFile>$(MSBuildThisFileDirectory)SharedBackground.nuspec</NuspecFile>
     <RootNamespace>SharedBackground.SpecFlowPlugin</RootNamespace>
-    <Version>1.0.1</Version>
+    <Version>1.1.0-beta</Version>
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="SpecFlow.CustomPlugin" Version="3.0.225" />
+    <PackageReference Include="SpecFlow.CustomPlugin" Version="3.1.21-beta" />
   </ItemGroup>
 
 
