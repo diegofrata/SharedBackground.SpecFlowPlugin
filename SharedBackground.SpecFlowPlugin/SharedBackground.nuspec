@@ -7,12 +7,14 @@
     <owners>Diego Frata</owners>
     <description>Plugin for injecting background steps into a Scenario or Feature during generation.</description>
     <summary/>
-    
+    <projectUrl>https://github.com/diegofrata/SharedBackground.SpecFlowPlugin</projectUrl>
+    <license type="expression">MIT</license>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <tags>specflow</tags>
     <dependencies>
       <dependency id="SpecFlow" version="3.0"/>
     </dependencies>
+    
   </metadata>
   <files>
     <file src="build\**\*" target="build"/>
