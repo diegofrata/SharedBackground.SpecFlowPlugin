@@ -1,3 +1,4 @@
+using System;
 using System.CodeDom;
 using System.IO;
 using System.Linq;
@@ -16,20 +17,24 @@ namespace SharedBackground.SpecFlowPlugin
 {
     public class SharedBackgroundFeatureGenerator : IFeatureGenerator
     {
-        static readonly Regex FileRegex = new Regex("file:(.+)");
-        static readonly Regex StepRegex = new Regex("the background steps (?:of|in) '(.+)' have been executed");
+        static readonly Regex BackgroundRegex = new Regex("the background steps (?:of|in) '(?<Feature>.+)' have been executed");
+        static readonly Regex ScenarioRegex = new Regex("the scenario '(?<Scenario>.+)' (?:of|in) '(?<Feature>.+)' has been executed");
 
         internal static bool CanGenerate(SpecFlowDocument document)
         {
             var canGenerate = document.SpecFlowFeature.Children
                 .Any(x =>
                 {
+                    var patterns = new[] { BackgroundRegex, ScenarioRegex };
+
+                    bool IsMatch(string text) => patterns.Any(a => a.IsMatch(text));
+                    
                     switch (x)
                     {
                         case Background background:
-                            return FileRegex.IsMatch(background.Name ?? "");
+                            return IsMatch(background.Name ?? "");
                         case StepsContainer stepsContainer:
-                            return stepsContainer.Steps.Any(step => StepRegex.IsMatch(step.Text ?? ""));
+                            return stepsContainer.Steps.Any(step => IsMatch(step.Text ?? ""));
                         default:
                             return false;
                     }
@@ -59,16 +64,28 @@ namespace SharedBackground.SpecFlowPlugin
 
         public CodeNamespace GenerateUnitTestFixture(SpecFlowDocument document, string testClassName, string targetNamespace)
         {
-            SpecFlowDocument GetBackgroundDocument(Regex regex, string text)
+            StepsContainer GetBackgroundDocument(string text)
             {
-                var match = regex.Match(text);
-                
-                if (!match.Success) 
+                var patterns = new[] { BackgroundRegex, ScenarioRegex };
+
+                var match = patterns.Select(x => (Regex: x, Match: x.Match(text))).FirstOrDefault(x => x.Match.Success);
+
+                if (match == default)
                     return null;
                 
-                var filePath =  Path.Combine(Path.GetDirectoryName(document.SourceFilePath), match.Groups[1].Value);
+                var fileName = match.Match.Groups["Feature"].Value;
+
+                if (!fileName.EndsWith(".feature", StringComparison.InvariantCultureIgnoreCase))
+                    fileName += ".feature";
+                
+                var filePath =  Path.Combine(Path.GetDirectoryName(document.SourceFilePath), fileName);
                 var backgroundDocument = GenerateTestFileCode(new FeatureFileInput(filePath));
-                return backgroundDocument;  
+
+                var hasScenario = ReferenceEquals(match.Regex, ScenarioRegex); 
+
+                return hasScenario 
+                    ? backgroundDocument?.SpecFlowFeature.ScenarioDefinitions.FirstOrDefault(x => x.Name == match.Match.Groups["Scenario"].Value) 
+                    : backgroundDocument?.SpecFlowFeature?.Background;
             }
             
             var transformedChildren = document.SpecFlowFeature.Children.Select(x =>
@@ -77,15 +94,15 @@ namespace SharedBackground.SpecFlowPlugin
                 {
                     case Background background:
                     {
-                        var backgroundDocument = GetBackgroundDocument(FileRegex, background.Name ?? "");
-                        return backgroundDocument?.SpecFlowFeature?.Background ?? background;
+                        var backgroundDocument = GetBackgroundDocument(background.Name ?? "");
+                        return backgroundDocument ?? background;
                     }
                     case Scenario scenario:
                     {
                         var transformedSteps = scenario.Steps.SelectMany(step =>
                         {
-                            var backgroundDocument = GetBackgroundDocument(StepRegex, step.Text ?? "");
-                            return backgroundDocument?.SpecFlowFeature?.Background?.Steps ?? new[] { step };
+                            var backgroundDocument = GetBackgroundDocument(step.Text ?? "");
+                            return backgroundDocument?.Steps ?? new[] { step };
                         });
 
                         if (scenario is ScenarioOutline scenarioOutline)

@@ -1,8 +1,8 @@
 Feature: Background File
 
-  Background: file:SharedBackground.feature
+  Background: the background steps of 'Shared/SharedBackground' have been executed
   
-  Scenario: Add two numbers
+  Scenario: Use background grammar
     When I press add
     Then the result should be 120 on the screen
     
