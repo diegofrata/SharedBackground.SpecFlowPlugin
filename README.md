@@ -1,6 +1,7 @@
 # SharedBackground.SpecFlowPlugin
 
 [![NuGet Status](http://img.shields.io/nuget/v/sharedbackground.specflowplugin.svg?style=flat)](https://www.nuget.org/packages/sharedbackground.specflowplugin/)
+[![NuGet Status](http://img.shields.io/nuget/vpre/sharedbackground.specflowplugin.svg?style=flat)](https://www.nuget.org/packages/sharedbackground.specflowplugin/)
 
 A SpecFlow plugin to share background steps with multiple features and scenarios.
 
