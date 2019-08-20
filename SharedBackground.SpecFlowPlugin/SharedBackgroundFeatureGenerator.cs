@@ -110,7 +110,7 @@ namespace SharedBackground.SpecFlowPlugin
                 ? backgroundDocument?.SpecFlowFeature.ScenarioDefinitions.FirstOrDefault(x => x.Name == match.Match.Groups["Scenario"].Value)
                 : backgroundDocument?.SpecFlowFeature?.Background;
 
-            return CanGenerate(stepsContainer) ? TransformSteps(currentDocumentSourceFilePath, stepsContainer) : stepsContainer;
+            return CanGenerate(stepsContainer) ? TransformSteps(filePath, stepsContainer) : stepsContainer;
         }
 
         StepsContainer TransformSteps(string currentDocumentSourceFilePath, StepsContainer hasLocation)
