@@ -147,7 +147,9 @@ namespace SharedBackground.SpecFlowPlugin
                 document.SourceFilePath
             );
 
-            return _unitTestFeatureGenerator.GenerateUnitTestFixture(clonedDocument, testClassName, targetNamespace);
+            return CanGenerate(clonedDocument) 
+                ? GenerateUnitTestFixture(clonedDocument, testClassName, targetNamespace) 
+                : _unitTestFeatureGenerator.GenerateUnitTestFixture(clonedDocument, testClassName, targetNamespace);
         }
 
         SpecFlowDocument GenerateTestFileCode(FeatureFileInput featureFileInput)

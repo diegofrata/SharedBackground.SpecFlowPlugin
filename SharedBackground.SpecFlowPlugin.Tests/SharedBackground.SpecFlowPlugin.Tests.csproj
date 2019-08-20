@@ -23,6 +23,15 @@
         <Content Include="Shared\SharedScenario.feature" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Compile Update="InlineUsage.feature.cs">
+        <DependentUpon>InlineUsage.feature</DependentUpon>
+      </Compile>
+      <Compile Update="BackgroundUsage.feature.cs">
+        <DependentUpon>BackgroundUsage.feature</DependentUpon>
+      </Compile>
+    </ItemGroup>
+
     <Target Name="AfterUpdateFeatureFilesInProject">
         <ItemGroup>
             <Compile Include="**\*.feature.cs" Exclude="@(Compile)" />

@@ -1,4 +1,4 @@
-Feature: Given Background
+Feature: Inline Usage
       
   Scenario: Use background inline
     Given the background steps of 'Shared/SharedBackground' have been executed

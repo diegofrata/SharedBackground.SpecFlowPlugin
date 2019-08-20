@@ -1,4 +1,4 @@
-Feature: Background File
+Feature: Background Usage
 
   Background: the background steps of 'Shared/SharedBackground' have been executed
   
