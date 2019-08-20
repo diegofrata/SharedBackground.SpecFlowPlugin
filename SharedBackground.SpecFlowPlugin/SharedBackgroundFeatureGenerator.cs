@@ -18,7 +18,7 @@ namespace SharedBackground.SpecFlowPlugin
     public class SharedBackgroundFeatureGenerator : IFeatureGenerator
     {
         static readonly Regex BackgroundRegex = new Regex("the background steps (?:of|in) '(?<Feature>.+)' have been executed");
-        static readonly Regex ScenarioRegex = new Regex("the scenario '(?<Scenario>.+)' (?:of|in) '(?<Feature>.+)' has been executed");
+        static readonly Regex ScenarioRegex = new Regex("the scenario '(?<Scenario>.+?)' (?:(?:of|in) '(?<Feature>.+?)' )?has been executed");
 
         internal static bool CanGenerate(SpecFlowDocument document)
         {
@@ -75,10 +75,18 @@ namespace SharedBackground.SpecFlowPlugin
                 
                 var fileName = match.Match.Groups["Feature"].Value;
 
-                if (!fileName.EndsWith(".feature", StringComparison.InvariantCultureIgnoreCase))
-                    fileName += ".feature";
-                
-                var filePath =  Path.Combine(Path.GetDirectoryName(document.SourceFilePath), fileName);
+                string filePath;
+                if (!string.IsNullOrEmpty(fileName))
+                {
+
+                    if (!fileName.EndsWith(".feature", StringComparison.InvariantCultureIgnoreCase))
+                        fileName += ".feature";
+
+                    filePath = Path.Combine(Path.GetDirectoryName(document.SourceFilePath), fileName);
+                }
+                else
+                    filePath = document.SourceFilePath;
+
                 var backgroundDocument = GenerateTestFileCode(new FeatureFileInput(filePath));
 
                 var hasScenario = ReferenceEquals(match.Regex, ScenarioRegex); 

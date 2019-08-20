@@ -8,7 +8,7 @@ Feature: Recursive Usage
     And I have also entered 70 into the calculator
   
   Scenario: Step 3
-    Given the scenario 'Step 2' of 'RecursiveUsage' has been executed
+    Given the scenario 'Step 2' has been executed
     When I press add
    
   Scenario: Step 4
