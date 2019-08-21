@@ -6,22 +6,22 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0"/>
-        <PackageReference Include="NUnit" Version="3.12.0"/>
-        <PackageReference Include="NUnit3TestAdapter" Version="3.14.0"/>
-        <PackageReference Include="SpecFlow.NUnit" Version="3.0.225"/>
-        <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.0.225"/>
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.2.0" />
+        <PackageReference Include="NUnit" Version="3.12.0" />
+        <PackageReference Include="NUnit3TestAdapter" Version="3.14.0" />
+        <PackageReference Include="SpecFlow.NUnit" Version="3.1.21-beta" />
+        <PackageReference Include="SpecFlow.Tools.MsBuild.Generation" Version="3.1.21-beta" />
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\SharedBackground.SpecFlowPlugin\SharedBackground.SpecFlowPlugin.csproj"/>
-        <SpecFlowGeneratorPlugins Include="bin/Debug/netcoreapp2.2/SharedBackground.SpecFlowPlugin.dll"/>
+        <ProjectReference Include="..\SharedBackground.SpecFlowPlugin\SharedBackground.SpecFlowPlugin.csproj" />
+        <SpecFlowGeneratorPlugins Include="bin/Debug/netcoreapp2.2/SharedBackground.SpecFlowPlugin.dll" />
     </ItemGroup>
 
     <ItemGroup>
-        <Content Include="*.feature"/>
-        <Content Include="Shared\SharedBackground.feature"/>
-        <Content Include="Shared\SharedScenario.feature"/>
+        <Content Include="*.feature" />
+        <Content Include="Shared\SharedBackground.feature" />
+        <Content Include="Shared\SharedScenario.feature" />
     </ItemGroup>
 
     <ItemGroup>
@@ -35,7 +35,7 @@
 
     <Target Name="AfterUpdateFeatureFilesInProject">
         <ItemGroup>
-            <Compile Include="**\*.feature.cs" Exclude="@(Compile)"/>
+            <Compile Include="**\*.feature.cs" Exclude="@(Compile)" />
         </ItemGroup>
     </Target>
 
