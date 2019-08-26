@@ -15,7 +15,7 @@
 
     <ItemGroup>
         <!-- Uncomment this to run the tests! -->
-<!--        <SpecFlowGeneratorPlugins Include="../SharedBackground.SpecFlowPlugin/bin/Debug/netstandard2.0/SharedBackground.SpecFlowPlugin.dll" />-->
+        <SpecFlowGeneratorPlugins Include="../SharedBackground.SpecFlowPlugin/bin/Debug16/netstandard2.0/SharedBackground.SpecFlowPlugin.dll" />
     </ItemGroup>
 
     <ItemGroup>

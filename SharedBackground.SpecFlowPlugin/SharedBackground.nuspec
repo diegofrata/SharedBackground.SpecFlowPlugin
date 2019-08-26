@@ -1,7 +1,7 @@
 ﻿<package xmlns="http://schemas.microsoft.com/packaging/2010/07/nuspec.xsd">
   <metadata>
     <id>SharedBackground.SpecFlowPlugin</id>
-    <version>2.4.1-dev</version>
+    <version>2.4.2-dev</version>
     <title>SharedBackground.SpecFlowPlugin</title>
     <authors>Diego Frata</authors>
     <owners>Diego Frata</owners>

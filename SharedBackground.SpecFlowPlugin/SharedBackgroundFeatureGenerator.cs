@@ -41,7 +41,6 @@ namespace SharedBackground.SpecFlowPlugin
         readonly ProjectSettings _projectSettings;
         readonly IGherkinParserFactory _gherkinParserFactory;
         readonly UnitTestFeatureGenerator _unitTestFeatureGenerator;
-        readonly HashSet<(string Feature, string Scenario)> _redefinedScenarios = new HashSet<(string, string)>();
 
         public SharedBackgroundFeatureGenerator(
             IUnitTestGeneratorProvider testGeneratorProvider,
@@ -60,7 +59,9 @@ namespace SharedBackground.SpecFlowPlugin
         public CodeNamespace GenerateUnitTestFixture(SpecFlowDocument document, string testClassName, string targetNamespace)
         {
             var transformedChildren = document.SpecFlowFeature.Children
-                .Select(x => x is StepsContainer stepsContainer ? TransformSteps(document.SourceFilePath, stepsContainer) : x);
+                .Select(x => x is StepsContainer stepsContainer
+                    ? TransformSteps(document.SourceFilePath, stepsContainer, new HashSet<(string Feature, string Scenario)>())
+                    : x);
 
             var clonedDocument = new SpecFlowDocument(
                 new SpecFlowFeature(
@@ -79,7 +80,8 @@ namespace SharedBackground.SpecFlowPlugin
             return _unitTestFeatureGenerator.GenerateUnitTestFixture(clonedDocument, testClassName, targetNamespace);
         }
 
-        StepsContainer GetBackgroundDocument(string currentDocumentSourceFilePath, string text)
+        StepsContainer GetBackgroundDocument(string currentDocumentSourceFilePath, string text,
+            HashSet<(string Feature, string Scenario)> evaluatedScenarios)
         {
             var grammars = new IGrammar[] { new BackgroundGrammar(), new ScenarioGrammar(), new RedefinedGrammar() };
 
@@ -102,16 +104,14 @@ namespace SharedBackground.SpecFlowPlugin
             else
                 featurePath = currentDocumentSourceFilePath;
 
-
-            if (match.Grammar is RedefinedGrammar)
-            {
-                _redefinedScenarios.Add((featurePath.ToLowerInvariant(), scenarioName.ToLowerInvariant()));
-                return new Scenario(default, default, default, default, default, new Step[0], default);
-            }
-
             var isScenario = match.Grammar is ScenarioGrammar;
 
-            if (isScenario && _redefinedScenarios.Contains((featurePath.ToLowerInvariant(), scenarioName.ToLowerInvariant())))
+            if (isScenario && evaluatedScenarios.Contains((featurePath.ToLowerInvariant(), scenarioName.ToLowerInvariant())))
+                return new Scenario(default, default, default, default, default, new Step[0], default);
+
+            evaluatedScenarios.Add((featurePath.ToLowerInvariant(), scenarioName.ToLowerInvariant()));
+            
+            if (match.Grammar is RedefinedGrammar)
                 return new Scenario(default, default, default, default, default, new Step[0], default);
 
             var backgroundDocument = GenerateTestFileCode(new FeatureFileInput(featurePath));
@@ -121,16 +121,17 @@ namespace SharedBackground.SpecFlowPlugin
                     x.Name.Equals(scenarioName, StringComparison.InvariantCultureIgnoreCase))
                 : backgroundDocument?.SpecFlowFeature?.Background;
 
-            return CanGenerate(stepsContainer) ? TransformSteps(featurePath, stepsContainer) : stepsContainer;
+            return CanGenerate(stepsContainer) ? TransformSteps(featurePath, stepsContainer, evaluatedScenarios) : stepsContainer;
         }
 
-        StepsContainer TransformSteps(string currentDocumentSourceFilePath, StepsContainer hasLocation)
+        StepsContainer TransformSteps(string currentDocumentSourceFilePath, StepsContainer hasLocation,
+            HashSet<(string Feature, string Scenario)> evaluatedScenarios)
         {
             switch (hasLocation)
             {
                 case Background background:
                 {
-                    var backgroundDocument = GetBackgroundDocument(currentDocumentSourceFilePath, background.Name ?? "");
+                    var backgroundDocument = GetBackgroundDocument(currentDocumentSourceFilePath, background.Name ?? "", evaluatedScenarios);
                     return backgroundDocument ?? background;
                 }
 
@@ -138,7 +139,7 @@ namespace SharedBackground.SpecFlowPlugin
                 {
                     var transformedSteps = scenario.Steps.SelectMany(step =>
                     {
-                        var backgroundDocument = GetBackgroundDocument(currentDocumentSourceFilePath, step.Text ?? "");
+                        var backgroundDocument = GetBackgroundDocument(currentDocumentSourceFilePath, step.Text ?? "", evaluatedScenarios);
                         return backgroundDocument?.Steps ?? new[] { step };
                     });
 
