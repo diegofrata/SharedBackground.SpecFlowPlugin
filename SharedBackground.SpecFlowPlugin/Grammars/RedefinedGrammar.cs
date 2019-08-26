@@ -4,7 +4,7 @@ namespace SharedBackground.SpecFlowPlugin.Grammars
 {
     public class RedefinedGrammar : IGrammar
     {
-        static readonly Regex RedefinedRegex = new Regex("the scenario '(?<Scenario>.+?)'(?: (?:of|in) '(?<Feature>.+?)')? is redefined");
+        static readonly Regex RedefinedRegex = new Regex("the scenario '(?<Scenario>.+?)'(?: (?:of|in) '(?<Feature>.+?)')? (?:is|has been) redefined");
 
         public (string Feature, string Scenario)? Match(string text)
         {
