@@ -1,9 +1,10 @@
 using System;
 using System.CodeDom;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text.RegularExpressions;
 using Gherkin.Ast;
+using SharedBackground.SpecFlowPlugin.Grammars;
 using TechTalk.SpecFlow.Configuration;
 using TechTalk.SpecFlow.Generator;
 using TechTalk.SpecFlow.Generator.CodeDom;
@@ -17,16 +18,13 @@ namespace SharedBackground.SpecFlowPlugin
 {
     public class SharedBackgroundFeatureGenerator : IFeatureGenerator
     {
-        static readonly Regex BackgroundRegex = new Regex("the background steps (?:of|in) '(?<Feature>.+)' have been executed");
-        static readonly Regex ScenarioRegex = new Regex("the scenario '(?<Scenario>.+?)' (?:(?:of|in) '(?<Feature>.+?)' )?has been executed");
-
         internal static bool CanGenerate(SpecFlowDocument document) => document.SpecFlowFeature.Children.Any(CanGenerate);
 
         static bool CanGenerate(IHasLocation x)
         {
-            var patterns = new[] { BackgroundRegex, ScenarioRegex };
+            var grammars = new IGrammar[] { new BackgroundGrammar(), new ScenarioGrammar(), new RedefinedGrammar() };
 
-            bool IsMatch(string text) => patterns.Any(a => a.IsMatch(text));
+            bool IsMatch(string text) => grammars.Any(a => a.Match(text).HasValue);
 
             switch (x)
             {
@@ -43,6 +41,7 @@ namespace SharedBackground.SpecFlowPlugin
         readonly ProjectSettings _projectSettings;
         readonly IGherkinParserFactory _gherkinParserFactory;
         readonly UnitTestFeatureGenerator _unitTestFeatureGenerator;
+        readonly HashSet<(string Feature, string Scenario)> _redefinedScenarios = new HashSet<(string, string)>();
 
         public SharedBackgroundFeatureGenerator(
             IUnitTestGeneratorProvider testGeneratorProvider,
@@ -82,35 +81,47 @@ namespace SharedBackground.SpecFlowPlugin
 
         StepsContainer GetBackgroundDocument(string currentDocumentSourceFilePath, string text)
         {
-            var patterns = new[] { BackgroundRegex, ScenarioRegex };
+            var grammars = new IGrammar[] { new BackgroundGrammar(), new ScenarioGrammar(), new RedefinedGrammar() };
 
-            var match = patterns.Select(x => (Regex: x, Match: x.Match(text))).FirstOrDefault(x => x.Match.Success);
+            var match = grammars.Select(x => (Grammar: x, Result: x.Match(text))).FirstOrDefault(x => x.Result.HasValue);
 
             if (match == default)
                 return null;
 
-            var fileName = match.Match.Groups["Feature"].Value;
+            var featureName = match.Result.Value.Feature;
+            var scenarioName = match.Result.Value.Scenario;
 
-            string filePath;
-            if (!string.IsNullOrEmpty(fileName))
+            string featurePath;
+            if (!string.IsNullOrEmpty(featureName))
             {
-                if (!fileName.EndsWith(".feature", StringComparison.InvariantCultureIgnoreCase))
-                    fileName += ".feature";
+                if (!featureName.EndsWith(".feature", StringComparison.InvariantCultureIgnoreCase))
+                    featureName += ".feature";
 
-                filePath = Path.Combine(Path.GetDirectoryName(currentDocumentSourceFilePath), fileName);
+                featurePath = Path.Combine(Path.GetDirectoryName(currentDocumentSourceFilePath), featureName);
             }
             else
-                filePath = currentDocumentSourceFilePath;
+                featurePath = currentDocumentSourceFilePath;
 
-            var backgroundDocument = GenerateTestFileCode(new FeatureFileInput(filePath));
 
-            var hasScenario = ReferenceEquals(match.Regex, ScenarioRegex);
+            if (match.Grammar is RedefinedGrammar)
+            {
+                _redefinedScenarios.Add((featurePath.ToLowerInvariant(), scenarioName.ToLowerInvariant()));
+                return new Scenario(default, default, default, default, default, new Step[0], default);
+            }
 
-            var stepsContainer = hasScenario
-                ? backgroundDocument?.SpecFlowFeature.ScenarioDefinitions.FirstOrDefault(x => x.Name == match.Match.Groups["Scenario"].Value)
+            var isScenario = match.Grammar is ScenarioGrammar;
+
+            if (isScenario && _redefinedScenarios.Contains((featurePath.ToLowerInvariant(), scenarioName.ToLowerInvariant())))
+                return new Scenario(default, default, default, default, default, new Step[0], default);
+
+            var backgroundDocument = GenerateTestFileCode(new FeatureFileInput(featurePath));
+
+            var stepsContainer = isScenario
+                ? backgroundDocument?.SpecFlowFeature.ScenarioDefinitions.FirstOrDefault(x =>
+                    x.Name.Equals(scenarioName, StringComparison.InvariantCultureIgnoreCase))
                 : backgroundDocument?.SpecFlowFeature?.Background;
 
-            return CanGenerate(stepsContainer) ? TransformSteps(filePath, stepsContainer) : stepsContainer;
+            return CanGenerate(stepsContainer) ? TransformSteps(featurePath, stepsContainer) : stepsContainer;
         }
 
         StepsContainer TransformSteps(string currentDocumentSourceFilePath, StepsContainer hasLocation)

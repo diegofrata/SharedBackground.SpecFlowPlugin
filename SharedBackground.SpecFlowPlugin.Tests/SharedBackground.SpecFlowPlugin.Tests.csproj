@@ -14,8 +14,8 @@
     </ItemGroup>
 
     <ItemGroup>
-        <ProjectReference Include="..\SharedBackground.SpecFlowPlugin\SharedBackground.SpecFlowPlugin.csproj" />
-        <SpecFlowGeneratorPlugins Include="bin/Debug/netcoreapp2.2/SharedBackground.SpecFlowPlugin.dll" />
+        <!-- Uncomment this to run the tests! -->
+<!--        <SpecFlowGeneratorPlugins Include="../SharedBackground.SpecFlowPlugin/bin/Debug/netstandard2.0/SharedBackground.SpecFlowPlugin.dll" />-->
     </ItemGroup>
 
     <ItemGroup>

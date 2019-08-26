@@ -5,7 +5,7 @@
     <GeneratePackageOnBuild>true</GeneratePackageOnBuild>
     <NuspecFile>$(MSBuildThisFileDirectory)SharedBackground.nuspec</NuspecFile>
     <RootNamespace>SharedBackground.SpecFlowPlugin</RootNamespace>
-    <Version>2.3.0-dev</Version>
+    <Version>2.4.0-dev</Version>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 

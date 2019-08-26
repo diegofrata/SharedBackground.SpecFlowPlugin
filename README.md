@@ -23,7 +23,7 @@ You can also reference specific scenarios, rather than a background definition:
 Given the scenario 'Add two numbers' of 'SharedBackground' has been executed
 ```
 
-It also support recursively importing scenario definitions:
+It supports recursively importing scenario definitions:
 
 ```gherkin
 @ignore
@@ -41,6 +41,16 @@ Scenario: Add two numbers
   Then the result is 100
 ```
 
+Or even redefining scenarios, so you can replace parts of recursive scenarios: 
+
+```gherkin
+Scenario: Interleaving steps
+  Given the scenario 'Step 1' has been executed
+  And the scenario 'Step 2' is redefined
+  And I have also entered 70 into the calculator    
+  When the scenario 'Step 3' is executed
+  Then the result should be 120 on the screen
+```
 
 ### Installation
 
