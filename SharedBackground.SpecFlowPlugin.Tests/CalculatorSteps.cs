@@ -20,6 +20,12 @@ namespace SpecFlow.SharedBackground.Tests
         {
             calculator.SecondNumber = number;
         }
+        
+        [Given(@"I erased the second number")]
+        public void GivenIErasedTheSecondNumber()
+        {
+            calculator.SecondNumber = 0;
+        }
 
         [When(@"I press add")]
         public void WhenIPressAdd()

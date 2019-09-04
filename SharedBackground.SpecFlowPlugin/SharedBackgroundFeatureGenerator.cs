@@ -1,6 +1,7 @@
 using System;
 using System.CodeDom;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using Gherkin.Ast;
@@ -137,11 +138,35 @@ namespace SharedBackground.SpecFlowPlugin
 
                 case Scenario scenario:
                 {
-                    var transformedSteps = scenario.Steps.SelectMany(step =>
+                    var transformedSteps = new List<Step>();
+                    var keyword = default(StepKeyword);
+
+                    foreach (var step in scenario.Steps.Cast<SpecFlowStep>())
                     {
-                        var backgroundDocument = GetBackgroundDocument(currentDocumentSourceFilePath, step.Text ?? "", evaluatedScenarios);
-                        return backgroundDocument?.Steps ?? new[] { step };
-                    });
+                        SpecFlowStep internalStep;
+
+                        if (keyword != 0 && (step.StepKeyword == StepKeyword.And || step.StepKeyword == StepKeyword.But))
+                        {
+                            internalStep = new SpecFlowStep(
+                                step.Location,
+                                $"{keyword} ",
+                                step.Text,
+                                step.Argument,
+                                keyword,
+                                step.ScenarioBlock
+                            );
+                        }
+                        else internalStep = step;
+                        
+                        var backgroundDocument = GetBackgroundDocument(currentDocumentSourceFilePath, internalStep.Text ?? "", evaluatedScenarios);
+                        
+                        if (backgroundDocument?.Steps != null)
+                            transformedSteps.AddRange(backgroundDocument.Steps);
+                        else 
+                            transformedSteps.Add(internalStep);
+                        
+                        keyword = internalStep.StepKeyword;
+                    }
 
                     if (scenario is ScenarioOutline scenarioOutline)
                     {
